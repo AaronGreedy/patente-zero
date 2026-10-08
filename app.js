@@ -117,6 +117,7 @@ function mmss(ms) {
   return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0');
 }
 function secs(ms) { return Math.round(ms / 1000) + 's'; }
+function mila(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
 
 /* sottolinea nel testo le parole che il "focus" indica come trabocchetto */
 function evidenzia(testo, focus) {
@@ -178,10 +179,10 @@ function renderHome() {
 
   const titolo = n.debole === 0 && viste > 0 ? 'Niente di debole' : (viste === 0 ? 'Si comincia' : 'Quasi pronto');
   const sotto = viste === 0
-    ? tot.toLocaleString('it-IT') + ' domande ufficiali, mai toccate. Parti da una simulazione per capire dove sei.'
+    ? mila(tot) + ' domande ufficiali, mai toccate. Parti da una simulazione per capire dove sei.'
     : (n.debole === 0
       ? 'Nessuna domanda debole in questo momento. Tieni la serie con una simulazione.'
-      : n.debole.toLocaleString('it-IT') + ' domande sono ancora deboli. Finché restano lì, lo zero non è sicuro.');
+      : mila(n.debole) + ' domande sono ancora deboli. Finché restano lì, lo zero non è sicuro.');
 
   el('v-home').innerHTML = `
     <div class="stack gap36" style="flex:1 1 auto">
@@ -203,14 +204,14 @@ function renderHome() {
           <div class="stack gap7"><div class="num">${n.instabile}</div><div class="k"><span class="dot" style="background:var(--grey)"></span>Instabili</div></div>
           <div class="stack gap7"><div class="num">${n.debole}</div><div class="k"><span class="dot" style="background:var(--bg);border:1.5px solid var(--hair)"></span>Deboli</div></div>
         </div>
-        <p class="note">${n.nuova.toLocaleString('it-IT')} mai viste${n.tolta ? ' · ' + n.tolta + ' messe da parte' : ''} · archivio di ${tot.toLocaleString('it-IT')}</p>
+        <p class="note">${mila(n.nuova)} mai viste${n.tolta ? ' · ' + n.tolta + ' messe da parte' : ''} · archivio di ${mila(tot)}</p>
       </div>
 
       <div class="grow"></div>
 
       <div class="stack gap14">
         <button class="btn big" id="b-allena" type="button">
-          <span>Allenati</span><small>${daRipassare ? daRipassare.toLocaleString('it-IT') + ' da ripassare' : 'parti dalle nuove'}</small>
+          <span>Allenati</span><small>${daRipassare ? mila(daRipassare) + ' da ripassare' : 'parti dalle nuove'}</small>
         </button>
         <div class="stack gap10">
           <button class="btn-o" id="b-sim" type="button">Simulazione 30</button>
