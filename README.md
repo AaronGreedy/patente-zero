@@ -1,61 +1,68 @@
 # Patente B — Zero Errori
 
-Progetto di interfaccia mobile (iPhone, verticale) per preparare il quiz della patente B
-puntando a **zero errori**, non alla sufficienza.
+App web per preparare il quiz della patente B puntando a **zero errori**, non alla sufficienza.
 
-Non è un'app per studiare tutte le domande: trova quelle in cui sbagli o **esiti**
-e te le fa ripetere finché non diventano sicure.
+Dentro ci sono le **7.106 domande ufficiali** del listato ministeriale A/B, con le 409 figure.
+Non è un'app per studiare tutte le domande: trova quelle in cui sbagli o **esiti** e te le fa
+ripetere finché non diventano sicure.
 
-👉 **Sito:** le otto schermate sono in `index.html`, una pagina statica senza dipendenze.
+**Live:** https://patente-zero.vercel.app · **Il disegno delle schermate:** `/design.html`
 
-## Le otto schermate
+## Le tre modalità
 
-**Simulazione** — come l'esame vero: 30 domande, 20 minuti, correzione solo alla fine.
+| | |
+|---|---|
+| **Allenati** | solo le domande deboli e instabili, correzione immediata con spiegazione |
+| **Simulazione 30** | come l'esame: 30 domande, 20 minuti, **nessuna correzione** fino alla fine |
+| **Infinity** | senza timer, a scorrimento: rispondi e sai subito com'è andata |
 
-1. **Home** — stato di preparazione in un colpo d'occhio: sicure / instabili / deboli
-2. **Domanda** — vero/falso, segnale in evidenza, timer discreto
-3. **Risultato** — errori, tempo, e quali domande entrano nel ripasso (con il perché)
-4. **Correzione e scelte** — le risposte tutte insieme, con i due interruttori per riga
-
-**Infinity** — senza timer, a scorrimento: rispondi e sai subito com'è andata.
-
-5. **Progresso** — serie di simulazioni a zero errori (obiettivo: 3 di fila) e andamento
-6. **Infinity · domanda** — stessa coppia di bottoni, nessun timer
-7. **Infinity · sbagliata** — spiegazione sempre visibile, parola trabocchetto sottolineata
-8. **Infinity · giusta** — bottone *Spiegazione* a richiesta, utile quando hai indovinato
+La simulazione pesca a caso da tutto l'archivio (tolte solo quelle messe da parte con ⭐):
+deve restare un esame onesto. L'allenamento invece insiste dove sbagli.
 
 ## Il meccanismo
 
 | | |
 |---|---|
-| **Esce dal giro** | giusta sotto i **4 secondi** per **3 volte di fila**, oppure segnata con ⭐ |
+| **Esce dal giro** | giusta in meno di **4 secondi** per **3 volte di fila**, oppure segnata con ⭐ |
 | **Rientra nel giro** | sbagliata, **esitata oltre i 15 secondi**, oppure segnata con ↻ |
 
-Le due soglie (4s e 15s) sono i parametri da tarare: tutto il resto dipende da loro.
+Le soglie stanno in cima a `app.js` (`FAST`, `FAST_STREAK`, `HESIT`): sono i parametri da tarare,
+tutto il resto dipende da loro.
 
-I due interruttori valgono su **un solo archivio**: quello che togli in simulazione
-non torna in Infinity, e viceversa.
+I due interruttori valgono su **un solo archivio**: quello che togli in simulazione non torna
+in Infinity, e viceversa. Lo stato vive in `localStorage` (`patente-zero:v1`), sul dispositivo.
 
-## Direzione visiva
+Nella correzione di fine simulazione ogni domanda mostra **se l'hai presa e in quanto tempo**,
+con i due interruttori per riga: l'app dichiara quante ne ha tolte da sola e tu correggi.
 
-- **Colore** — bianco `#FFFFFF`, carta `#F4F4F1`, inchiostro `#16171A`, grigio testo `#5E626B`,
-  filetti `#E2E2DE`. Un solo accento, e **solo per l'esito**: `#16794F` giusto / `#A62A1B` sbagliato.
-- Lo stato di preparazione usa **pieno → grigio → vuoto**, non colori: così il verde e il rosso
-  restano inconfondibili.
-- **Tipografia** — [Barlow](https://fonts.google.com/specimen/Barlow) e Barlow Condensed,
-  disegnate sulla segnaletica stradale: parlano la lingua del soggetto.
-- Niente gamification invadente: nessun cuore, coriandolo o mascotte.
+## Le domande
 
-## ⚠️ Le domande
+`data/bank.json` — 7.106 domande, 25 capitoli, 409 figure. Deriva dal
+[listato A/B del Portale dell'Automobilista del 23 aprile 2025](https://www.ilportaledellautomobilista.it/web/portale-automobilista/dettaglio-news/-/asset_publisher/V57QhEdoCmc7/document/id/121608540),
+tramite [GoldenNocturne/patente-lab](https://github.com/GoldenNocturne/patente-lab) (MIT);
+l'hash SHA-256 del PDF sorgente è nei metadati del file. Testi, risposte e figure sono ufficiali.
 
-Le domande nelle schermate sono **contenuto di progetto**: vere nella forma e fedeli allo stile
-ministeriale, ma scelte per mostrare come funziona l'interfaccia.
+`data/explanations.json` — spiegazione, focus sul trabocchetto e regola breve per tutte e 7.106.
+⚠️ **Non sono testo ministeriale**: vengono da
+[Lamuo/quiz-patente](https://github.com/Lamuo/quiz-patente) e sono generate con AI. Servono a
+capire, non fanno fede. Le domande e le risposte giuste invece sì.
 
-Il repertorio vero è pubblicato dal **Ministero delle Infrastrutture e dei Trasporti** e conta
-diverse migliaia di affermazioni: va **importato dalla fonte ufficiale**, non ricostruito a mano.
-Allo stesso modo i cartelli disegnati qui vanno sostituiti con le **figure ufficiali**, perché
-nei quiz la figura esatta fa parte della domanda.
+Il campo `focus` è anche quello che fa **sottolineare la parola trabocchetto** dentro la frase.
 
 ## Sviluppo
 
-Nessuna build, nessuna dipendenza: apri `index.html`.
+Nessuna build e nessuna dipendenza. Serve un server locale (le domande si caricano con `fetch`):
+
+```sh
+python3 -m http.server 8777
+# poi apri http://localhost:8777
+```
+
+- `index.html` · guscio · `app.css` · `app.js` — tutta la logica
+- `design.html` — le otto schermate del progetto di interfaccia, da condividere
+- `data/`, `images/` — archivio e figure
+
+## Licenza
+
+Codice MIT. I contenuti di terzi (quiz, figure, spiegazioni) restano soggetti alle condizioni
+delle rispettive fonti, elencate sopra.
